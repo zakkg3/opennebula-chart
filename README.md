@@ -10,7 +10,7 @@ $ helm install stable/opennebula --name my-release
 Or you can run it with [helmfile](https://github.com/roboll/helmfile) :
 
 ```console
-helmfile sync
+$ helmfile sync
 ```
 
 
