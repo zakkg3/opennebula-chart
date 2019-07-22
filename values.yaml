@@ -1,0 +1,101 @@
+# Default values for openNebula.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+imagePullSecrets: [] 
+nameOverride: ""
+fullnameOverride: ""
+
+# 3 = Debug. 2= Info
+debug_level: 2
+
+
+# Note all autoamted secrets creations are not being tracked by helm. So if you delete this chart the secrets will still be there.
+# run kubectl delete secrets <secret-name> -n <namespace> to delete them.
+# If you dont delete the secrets and then you re-install the chart in the same namespace it will fail. 
+# Image  (alpine + curl + openssh-keygen) to use for automate ssh_keys secret creation
+auto: &auto
+  image: zakkg3/opennebula-alpine-bootstrap
+  tag: "3.10"
+  # enabling adds service account, clusterrole and binding
+  enabled: true
+
+# Enable auto_ssh to create ssh keys secrets before install the chart. (templates/auto-*)
+# If you desable this you can run './createSshkeys.sh' before creating the chart.  
+# (Note, by default this will push to 'opennebula' namespace)
+auto_ssh: 
+  << : *auto
+  enabled: true
+# Enable auto_serveradmin_secret (recommended) to create a kuberenetes secret from the auto generated secret in 
+# file /var/lib/one/.one./sunstone_auth by onedeamon. This secret will be mounted in sunstone to "talk" with onedeamon.
+# Note, its not possible at the moment to pre mount a secret in  /var/lib/one/.one/sunstone_auth in onedeamon
+# to bootstrap the db with this secrets.
+auto_serveradmin_secret:
+  << : *auto
+  enabled: true
+
+# Opennebula one deamon.
+onedeamon:
+  image:
+    repository: zakkg3/opennebula
+    tag: 5.8.2
+    pullPolicy: IfNotPresent
+  port: 2633
+  replicaCount: 1
+  auth: # to mount in /var/lib/one/.one/one_auth
+    username: oneadmin
+    password: "yoursecretpasswordhere"
+  service:
+    type: ClusterIP
+    port: 2633
+  config:
+    default_auth: default
+
+sunstone:
+  image:
+    repository: zakkg3/opennebula-sunstone
+    tag: 5.8.2
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  config: #http://docs.opennebula.org/5.8/deployment/sunstone_setup/sunstone.html#configuration
+    auth: opennebula
+    sessions: memory #Use memcache for server that spawn more than one process
+    core_auth: cipher
+  port: 9869
+  service:
+    type: ClusterIP
+    port: 9869
+
+ingress:   # For Sunstone
+  enabled: false
+  annotations: 
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: opennebula.your.domain.com
+      paths:
+        - "/"
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

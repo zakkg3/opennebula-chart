@@ -1,0 +1,6 @@
+releases:
+  - name: opennebula
+    namespace: opennebula
+    chart: ./
+    recreatePods: true
+    

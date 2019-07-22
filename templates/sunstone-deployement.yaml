@@ -1,0 +1,78 @@
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ template "opennebula.sunstone.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+  name: {{ template "opennebula.sunstone.fullname" . }}
+spec:
+  serviceName: {{ template "opennebula.sunstone.fullname" . }}
+  replicas: {{ .Values.sunstone.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "opennebula.sunstone.fullname" . }}
+        release: {{ .Release.Name }}
+        # app.kubernetes.io/name: {{ template "opennebula.sunstone.fullname" . }}
+        # app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      containers:
+      - name: {{ template "opennebula.sunstone.fullname" . }}
+        image: "{{ .Values.sunstone.image.repository }}:{{ .Values.sunstone.image.tag }}"
+        imagePullPolicy: {{ .Values.onedeamon.image.pullPolicy }}
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - echo 1 > /var/lock/one/.novnc.lock
+        ports:
+        - containerPort: {{ .Values.sunstone.port | default 9869 }}
+        volumeMounts:
+        - mountPath: /etc/one/sunstone-server.conf
+          name: config
+          subPath: sunstone-server.conf
+        - mountPath: /var/lib/one/.one/sunstone_auth
+          name: oneadmin-one-keys
+          subPath: serveradmin
+        - mountPath: /var/tmp
+          name: data
+          subPath: tmp
+        - mountPath: /var/log/one
+          name: data
+          subPath: log
+        - mountPath: /var/lib/one/sunstone_vnc_tokens
+          name: data
+          subPath: sunstone_vnc_tokens
+      securityContext:
+        fsGroup: 9869
+        runAsUser: 9869
+      volumes:
+      - name: config
+        configMap:
+          name: {{ template "opennebula.sunstone.fullname" . }}
+      - name: oneadmin-one-keys
+        secret:
+          secretName: {{ include "opennebula.fullname" . }}-serveradmin
+      - name: data
+        emptyDir: {}
+      {{- with .Values.onedeamon.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.onedeamon.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.onedeamon.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
