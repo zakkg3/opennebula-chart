@@ -35,7 +35,7 @@ All user-configurable settings, default values and some commentary about them ca
 ## Automatic secrets creation.
 
 This chart will create 2 secrets if you enable this on the values file.
-This secrets are not being tracked by helm, so if you want to reinstall the chart you will need to delete them, see the "garbage collector" topic above.
+This secrets are not being tracked by helm, so if you want to reinstall the chart you will need to delete them, see the [garbage collector](#garbage collector) topic above.
 
 ## Create SSH KEYS.
 https://kubernetes.io/docs/concepts/configuration/secret/#use-case-pod-with-ssh-keys
