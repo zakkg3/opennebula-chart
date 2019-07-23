@@ -23,8 +23,13 @@ data:
     PORT = {{ .Values.onedeamon.port | default 2633 }}
     LISTEN_ADDRESS = "0.0.0.0"
 
-    DB = [ BACKEND = "sqlite" ]
-
+    DB = [ BACKEND = {{- if not .Values.mysql.enabled }}"sqlite" ]{{- else }}"mysql",
+       SERVER  = "{{ template "opennebula.mysql.fullname" . }}",
+       PORT    = {{ .Values.mysql.service.port }},
+       USER    = "{{ .Values.mysql.mysqlUser }}",
+       PASSWD  = "{{ .Values.mysql.mysqlPassword }}",
+       DB_NAME = "{{ .Values.mysql.mysqlDatabase }}" ]
+       {{- end }}
 
     VNC_PORTS = [
         START    = 5900,
