@@ -67,6 +67,15 @@ sunstone:
     type: ClusterIP
     port: 9869
 
+# Enable Mysql so use it as the backend DB. If its faltse sqllite will be used.
+mysql:
+  enabled: true
+  mysqlDatabase: "opennebula"
+  mysqlUser: "onedeamon"
+  mysqlPassword: "xxxYYYYY"
+  persistence:
+    size: 5Gi
+
 ingress:   # For Sunstone
   enabled: false
   annotations: 
