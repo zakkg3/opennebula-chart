@@ -96,7 +96,15 @@ For delete evertihing related with opennebula helm deploy please delete it  manu
 2 - run ./makedockler.sh
 
 
-# TODO 
+## Known Issues.
+
+* Minikikube have some problems exposing TCP with services. It may not work on minikube if you access the ui using proxy port.
+ Sunstone prints bad password in the UI and 401 status is returned in the logfiles with debug_level = 3
+ It may be related with https://github.com/kubernetes/minikube/issues/2840
+
+
+
+### TO-DO 
 
 - [ ] Memchaed
 
@@ -105,5 +113,3 @@ For delete evertihing related with opennebula helm deploy please delete it  manu
 
 - [ ] health check
    http://docs.opennebula.org/5.8/advanced_components/ha/frontend_ha_setup.html#checking-cluster-health
-   
-- [ ] Mysql Db (maybe incubator/mysqlha)
