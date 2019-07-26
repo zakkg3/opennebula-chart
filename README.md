@@ -113,3 +113,8 @@ For delete evertihing related with opennebula helm deploy please delete it  manu
 
 - [ ] health check
    http://docs.opennebula.org/5.8/advanced_components/ha/frontend_ha_setup.html#checking-cluster-health
+   
+   
+## authority
+
+It is loosely based upon the work of @kvaps and has borrowed some wisdom from other similar projects e.g. consul-chart (pr for tls certificates).
