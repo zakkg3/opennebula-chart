@@ -111,8 +111,6 @@ For delete evertihing related with opennebula helm deploy please delete it  manu
 - [ ] HA onedeamon.
    http://docs.opennebula.org/5.8/advanced_components/ha/frontend_ha_setup.html#opennebula-ha-setup
 
-- [ ] health check
-   http://docs.opennebula.org/5.8/advanced_components/ha/frontend_ha_setup.html#checking-cluster-health
    
    
 ## authority
