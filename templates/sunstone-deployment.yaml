@@ -52,9 +52,9 @@ spec:
         - mountPath: /var/lib/one/sunstone_vnc_tokens
           name: data
           subPath: sunstone_vnc_tokens
-      securityContext:
-        fsGroup: 9869
-        runAsUser: 9869
+      # securityContext:
+      #   fsGroup: 9869
+      #   runAsUser: 9869
       volumes:
       - name: config
         configMap:

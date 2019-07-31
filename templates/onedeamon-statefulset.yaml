@@ -20,13 +20,18 @@ spec:
       - command:
         - /bin/sh
         - -c
-        - ln -sf /dev/stdout /var/log/one/oned.log
+        - ln -sf /dev/stdout /var/log/one/oned.log {{- if .Values.mysql.enabled }} && 
+          until curl --max-time 5 http://{{ .Release.Name }}-mysql:3306; do echo waiting for {{ .Release.Name }}-mysql; sleep 5; done;
+          {{- end }}
         image: "{{ .Values.onedeamon.image.repository }}:{{ .Values.onedeamon.image.tag }}"
         name: init
         volumeMounts:
         - mountPath: /var/log/one
           name: data
           subPath: log
+        # - mountPath: /var/tmp/mysqlPassword
+        #   name: sqlpass
+        #   subPath: mysql-password
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -50,7 +55,7 @@ spec:
                   - "/bin/sh"
                   - "-ec"
                   - |
-                    echo 'Sleeping a litle bit' && \
+                    echo 'Creating secret in namespace $NAMESPACE Sleeping a litle bit' && \
                     sleep 7 && \
                     echo 'Creating secret for the serveradmin user' && \
                     curl -s -X POST -k https://kubernetes.default.svc/api/v1/namespaces/${NAMESPACE}/secrets \
@@ -62,14 +67,14 @@ spec:
             - name: onedport
               containerPort: {{ .Values.onedeamon.port | default 2633 }}
               protocol: TCP
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+          livenessProbe:
+            tcpSocket:
+              port: onedport
+            initialDelaySeconds: 20
           # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
+          #   tcpSocket:
+          #     port: onedport
+          #   initialDelaySeconds: 20
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -100,6 +105,9 @@ spec:
       - name: oned-config
         configMap:
           name: {{ template "opennebula.oned.fullname" . }}-deamonconfig
+      # - name: sqlpass
+      #   secret:
+      #     secretName: {{ template "opennebula.mysql.fullname" . }}
       # - name: auth-data
       #   emptyDir: {}
         # secret:

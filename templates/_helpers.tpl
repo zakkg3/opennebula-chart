@@ -61,3 +61,15 @@ Create a default fully qualified for sunstone
 {{- define "opennebula.sunstone.fullname" -}}
 {{ template "opennebula.fullname" . }}-sunstone
 {{- end -}}
+{{/*
+Create a default fully qualified for mysql
+*/}}
+{{- define "opennebula.mysql.fullname" -}}
+{{- printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{/*
+Create a default fully qualified for scheduler
+*/}}
+{{- define "opennebula.sched.fullname" -}}
+{{ template "opennebula.fullname" . }}-sched
+{{- end -}}

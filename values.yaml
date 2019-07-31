@@ -8,7 +8,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 # 3 = Debug. 2= Info
-debug_level: 2
+debug_level: 3
 
 
 # Note all autoamted secrets creations are not being tracked by helm. So if you delete this chart the secrets will still be there.
@@ -45,7 +45,7 @@ onedeamon:
   replicaCount: 1
   auth: # to mount in /var/lib/one/.one/one_auth
     username: oneadmin
-    password: "yoursecretpasswordhere"
+    password: "xxxxXXXX"
   service:
     type: ClusterIP
     port: 2633
@@ -60,31 +60,35 @@ sunstone:
   replicaCount: 1
   config: #http://docs.opennebula.org/5.8/deployment/sunstone_setup/sunstone.html#configuration
     auth: opennebula
-    sessions: memory #Use memcache for server that spawn more than one process
+    sessions: memory #memcache for server that spawn more than one process 
     core_auth: cipher
   port: 9869
   service:
     type: ClusterIP
     port: 9869
 
-# Enable Mysql so use it as the backend DB. If its faltse sqlite will be used.
 mysql:
   enabled: true
   mysqlDatabase: "opennebula"
   mysqlUser: "onedeamon"
-  mysqlPassword: "xxxYYYYY"
+  mysqlPassword: ""
   persistence:
-    size: 5Gi
+    #storageClass: "local-zfs"
+    size: 10Gi
+    
 
 ingress:   # For Sunstone
   enabled: false
   annotations: 
+    kubernetes.io/ingress.class: traefik
+    # traefik.ingress.kubernetes.io/frontend-entry-points: https
+    # certmanager.k8s.io/issuer: selfsigned
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: opennebula.your.domain.com
-      paths:
-        - "/"
+    - host: opennebula.domain
+      paths: []
+        #- "/"
 
   tls: []
   #  - secretName: chart-example-tls
