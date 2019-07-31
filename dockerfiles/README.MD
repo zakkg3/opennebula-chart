@@ -8,3 +8,10 @@
 | `zakkg3/opennebula-node`               |  5.8.2 | `sha256:e21ae6eb0a57d91e6254ed08a1decef201da8670b6bf6c9001af182ea08eadc5` |  392MB |
 | `zakkg3/opennebula-flow`               |  5.8.2 | `sha256:0b53ec1e6c87a52d763de5b7387333b11134bf9238b73980f4538efc0521a48c` |  640MB |
 | `zakkg3/opennebula-sunstone`           |  5.8.2 | `sha256:5417acbf5254ab782abe8c92c282cd69a1f09f0aaead7089e3806f59251ab588` |  792MB |
+
+
+to update this table:
+
+```console
+$ docker images --format "table | {{.Repository}} | {{.Size}} | {{.Digest}} |"
+```
