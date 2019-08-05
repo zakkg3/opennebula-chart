@@ -1,12 +1,14 @@
 # Opennebula control plane Chart.
 
-## Installing the Chart
+## Installing the Chart.
 
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm install stable/opennebula --name my-release
+# Not ready in stable/helm $ helm install stable/opennebula --name my-release 
+$ helm install ./ --name my-release
 ```
+
 Or you can run it with [helmfile](https://github.com/roboll/helmfile) :
 
 ```console
