@@ -61,6 +61,11 @@ sunstone:
   config: #http://docs.opennebula.org/5.8/deployment/sunstone_setup/sunstone.html#configuration
     auth: opennebula
     sessions: memory #memcache for server that spawn more than one process 
+    # Only used with Sessions: "memcached"
+    memcached: 
+      port: 11211
+      image: "memcached"
+      tag: "1.5.6-alpine"
     core_auth: cipher
   port: 9869
   service:
