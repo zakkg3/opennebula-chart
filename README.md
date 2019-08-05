@@ -108,8 +108,9 @@ For delete evertihing related with opennebula helm deploy please delete it  manu
 
 ### TO-DO 
 
-- [ ] Memchaed
-
+- [ ] ./delete as preuninstall hook. (pre-delete issue https://github.com/helm/helm/issues/6149 )
+- [ ] randpassword for oneadmin
+- [ ] rndpassword for mysql (include in configmap?) - maybenot.
 - [ ] HA onedeamon.
    http://docs.opennebula.org/5.8/advanced_components/ha/frontend_ha_setup.html#opennebula-ha-setup
 
