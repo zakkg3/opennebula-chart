@@ -58,9 +58,11 @@ sunstone:
     tag: 5.8.2
     pullPolicy: IfNotPresent
   replicaCount: 1
-  config: #http://docs.opennebula.org/5.8/deployment/sunstone_setup/sunstone.html#configuration
+  #http://docs.opennebula.org/5.8/deployment/sunstone_setup/sunstone.html#configuration
+  config: 
     auth: opennebula
-    sessions: memory #memcache for server that spawn more than one process 
+    #memcache for server that spawn more than one process
+    sessions: "memcache"
     # Only used with Sessions: "memcached"
     memcached: 
       port: 11211
