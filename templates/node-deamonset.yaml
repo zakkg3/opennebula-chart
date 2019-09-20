@@ -1,0 +1,57 @@
+apiVersion: apps/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    app: {{ template "opennebula.sunstone.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+  name: {{ template "opennebula.node.fullname" . }}
+spec:
+  serviceName: {{ template "opennebula.node.fullname" . }}
+  # selector:
+  #   matchLabels:
+  #     app: opennebula-node
+  template:
+    metadata:
+      labels:
+        app: {{ template "opennebula.node.fullname" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      # - command:
+      #   - /bin/sh
+      #   - /config/script.sh
+      - image: "{{ .Values.hosts.image.repository }}:{{ .Values.hosts.image.tag }}"
+        name: {{ template "opennebula.node.fullname" . }}
+      {{- if .Values.pullSecrets }}
+        imagePullSecrets:
+          {{ toYaml .Values.pullSecrets}}
+      {{- end }}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /config
+          name: config
+        - mountPath: /var/lib/one/.ssh
+          name: oneadmin-ssh-keys
+      hostIPC: true
+      hostNetwork: true
+      hostPID: true
+      nodeSelector:
+        opennebula-node: ""
+      volumes:
+      - configMap:
+          name: {{ template "opennebula.node.fullname" . }}-config
+        name: config
+      - name: oneadmin-ssh-keys
+        secret:
+          secretName: opennebula-ssh-keys
+      {{- if .Values.hosts.tolerations }}
+      tolerations:
+        {{ toYaml .Values.hosts.tolerations }}
+      {{- end }}
+      {{- if .Values.hosts.affinity }}
+      affinity:
+        {{ toYaml .Values.hosts.affinity }}
+      {{- end }}

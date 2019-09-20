@@ -79,3 +79,9 @@ Create a default fully qualified for memcached
 {{- define "opennebula.memcached.fullname" -}}
 {{ template "opennebula.fullname" . }}-memcached
 {{- end -}}
+{{/*
+Create a default fully qualified for node
+*/}}
+{{- define "opennebula.node.fullname" -}}
+{{ template "opennebula.fullname" . }}-node
+{{- end -}}
