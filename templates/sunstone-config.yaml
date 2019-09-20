@@ -3,7 +3,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    ksonnet.io/component: sunstone-config
     app: {{ template "opennebula.sunstone.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
@@ -15,9 +14,9 @@ data:
     :one_xmlrpc_timeout: 60
     :host: 0.0.0.0
     :port: 9869
-    :sessions: {{ .Values.sunstone.config.sessions | default "memcache" }} 
-    :memcache_host: opennebula-sunstone-memcached
-    :memcache_port: 11211
+    :sessions: {{ .Values.sunstone.config.sessions }} 
+    :memcache_host: {{ template "opennebula.memcached.fullname" . }} 
+    :memcache_port: {{ .Values.sunstone.config.memcached.port }}
     :memcache_namespace: opennebula.sunstone
     :env: 'prod'
     :debug_level: {{ .Values.debug_level | default 2 }}

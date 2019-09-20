@@ -1,4 +1,4 @@
-{{- if contains "memcached" .Values.sunstone.config.sessions }}
+{{- if contains "memcache" .Values.sunstone.config.sessions }}
 apiVersion: v1
 kind: Service
 metadata:

@@ -73,3 +73,9 @@ Create a default fully qualified for scheduler
 {{- define "opennebula.sched.fullname" -}}
 {{ template "opennebula.fullname" . }}-sched
 {{- end -}}
+{{/*
+Create a default fully qualified for memcached
+*/}}
+{{- define "opennebula.memcached.fullname" -}}
+{{ template "opennebula.fullname" . }}-memcached
+{{- end -}}
