@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   labels:
@@ -9,37 +9,49 @@ metadata:
   name: {{ template "opennebula.node.fullname" . }}
 spec:
   serviceName: {{ template "opennebula.node.fullname" . }}
-  # selector:
-  #   matchLabels:
-  #     app: opennebula-node
+  selector:
+    matchLabels:
+      app: {{ template "opennebula.node.fullname" . }}
+      release: "{{ .Release.Name }}"
   template:
     metadata:
       labels:
         app: {{ template "opennebula.node.fullname" . }}
         release: {{ .Release.Name }}
     spec:
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{ toYaml .Values.imagePullSecrets}}
+    {{- end }}
       containers:
-      # - command:
-      #   - /bin/sh
-      #   - /config/script.sh
+      #######
       - image: "{{ .Values.hosts.image.repository }}:{{ .Values.hosts.image.tag }}"
-        name: {{ template "opennebula.node.fullname" . }}
+        name: {{ template "opennebula.node.fullname" . }}-libvirt
+        args: ["libvirt"]
+        securityContext:
+          # privileged: true
+          capabilities:
+            add: ["NET_ADMIN"]    
+      - image: "{{ .Values.hosts.image.repository }}:{{ .Values.hosts.image.tag }}"
+        name: {{ template "opennebula.node.fullname" . }}-sshd
+        args: ["sshd"]
+        securityContext:
+          # privileged: true
+          capabilities:
+            add: ["NET_ADMIN"]    
       {{- if .Values.pullSecrets }}
         imagePullSecrets:
           {{ toYaml .Values.pullSecrets}}
       {{- end }}
-        securityContext:
-          privileged: true
         volumeMounts:
         - mountPath: /config
           name: config
-        - mountPath: /var/lib/one/.ssh
+        - mountPath: /var/lib/one/.ssh/authorized_keys
           name: oneadmin-ssh-keys
-      hostIPC: true
-      hostNetwork: true
-      hostPID: true
-      nodeSelector:
-        opennebula-node: ""
+          subPath: authorized_keys
+        - mountPath: /var/lib/one/.ssh/config
+          name: oneadmin-ssh-keys
+          subPath: config
       volumes:
       - configMap:
           name: {{ template "opennebula.node.fullname" . }}-config
@@ -47,6 +59,13 @@ spec:
       - name: oneadmin-ssh-keys
         secret:
           secretName: opennebula-ssh-keys
+      # hostIPC: false
+      hostNetwork: true
+      # hostPID: false
+      {{- if .Values.hosts.nodeSelector }}
+      nodeSelector:
+        {{ toYaml .Values.hosts.nodeSelector }}
+      {{- end }}
       {{- if .Values.hosts.tolerations }}
       tolerations:
         {{ toYaml .Values.hosts.tolerations }}

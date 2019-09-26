@@ -7,7 +7,5 @@ metadata:
     release: "{{ .Release.Name }}"
   name: {{ template "opennebula.node.fullname" . }}-config
 data:
-  somconfig.conf: |
-    someconfig
-    still
-    end
+  somconfig.conf:
+{{  tpl (toYaml .Values.hosts.config) . | indent 4 }}

@@ -20,7 +20,7 @@ spec:
       - command:
         - /bin/sh
         - -c
-        - ln -sf /dev/stdout /var/log/one/oned.log {{- if .Values.mysql.enabled }} && 
+        - ls {{- if .Values.mysql.enabled }} && 
           until curl --max-time 5 http://{{ .Release.Name }}-mysql:3306; do echo waiting for {{ .Release.Name }}-mysql; sleep 5; done;
           {{- end }}
         image: "{{ .Values.onedeamon.image.repository }}:{{ .Values.onedeamon.image.tag }}"
