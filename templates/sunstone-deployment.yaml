@@ -1,5 +1,4 @@
-
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -9,6 +8,10 @@ metadata:
     heritage: "{{ .Release.Service }}"
   name: {{ template "opennebula.sunstone.fullname" . }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "opennebula.sunstone.fullname" . }}
+      release: "{{ .Release.Name }}"
   serviceName: {{ template "opennebula.sunstone.fullname" . }}
   replicas: {{ .Values.sunstone.replicaCount }}
   template:
@@ -52,6 +55,15 @@ spec:
         - mountPath: /var/lib/one/sunstone_vnc_tokens
           name: data
           subPath: sunstone_vnc_tokens
+        - mountPath: /sys/fs/cgroup
+          name: cgroup
+          readOnly: true
+        - mountPath: /tmp
+          name: tmpfs-tmp
+        - mountPath: /run
+          name: tmpfs-run
+        - mountPath: /run/lock
+          name: tmpfs-run-lock
       # securityContext:
       #   fsGroup: 9869
       #   runAsUser: 9869
@@ -64,6 +76,18 @@ spec:
           secretName: {{ include "opennebula.fullname" . }}-serveradmin
       - name: data
         emptyDir: {}
+      - name: cgroup
+        hostPath:
+          path: /sys/fs/cgroup
+      - name: tmpfs-tmp
+        emptyDir:
+          medium: Memory
+      - name: tmpfs-run
+        emptyDir:
+          medium: Memory
+      - name: tmpfs-run-lock
+        emptyDir:
+          medium: Memory
       {{- with .Values.onedeamon.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

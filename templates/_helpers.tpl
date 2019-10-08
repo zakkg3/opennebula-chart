@@ -85,3 +85,9 @@ Create a default fully qualified for node
 {{- define "opennebula.node.fullname" -}}
 {{ template "opennebula.fullname" . }}-node
 {{- end -}}
+{{/*
+Create a default fully qualified for node
+*/}}
+{{- define "opennebula.flow.fullname" -}}
+{{ template "opennebula.fullname" . }}-oneflow
+{{- end -}}

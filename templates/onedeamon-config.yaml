@@ -99,7 +99,7 @@ data:
         NAME           = "kvm",
         SUNSTONE_NAME  = "KVM",
         EXECUTABLE     = "one_vmm_exec",
-        ARGUMENTS      = "-t 15 -r 0 kvm {{- if .Values.onedeamon.config.parallel_kvm }}- p{{- end}}",
+        ARGUMENTS      = "-t 15 -r 0 kvm {{- if .Values.onedeamon.config.parallel_kvm }} -p{{- end}}",
         DEFAULT        = "vmm_exec/vmm_exec_kvm.conf",
         TYPE           = "kvm",
         KEEP_SNAPSHOTS = "yes",

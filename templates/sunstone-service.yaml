@@ -14,8 +14,12 @@ metadata:
 spec:
   type: {{ .Values.sunstone.service.type }}
   ports:
-  - port: {{ .Values.sunstone.port | default 9869 }}
+  - name: sunstone
+    port: {{ .Values.sunstone.port | default 9869 }}
     targetPort: {{ .Values.sunstone.port | default 9869 }}
+  - name: novnc
+    port: 29876
+    targetPort: 29876
   selector:
     app: {{ template "opennebula.sunstone.fullname" . }}
     release: {{ .Release.Name }}

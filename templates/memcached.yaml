@@ -1,5 +1,5 @@
 {{- if contains "memcache" .Values.sunstone.config.sessions }}
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:

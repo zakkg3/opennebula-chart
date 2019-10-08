@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -19,11 +19,10 @@ spec:
         release: {{ .Release.Name }}
     spec:
       containers:
-      - command:
-        - /usr/bin/mm_sched
+      - name: {{ template "opennebula.sched.fullname" . }}
         image: "{{ .Values.onedeamon.image.repository }}:{{ .Values.onedeamon.image.tag }}"
         imagePullPolicy: {{ .Values.onedeamon.image.pullPolicy }}
-        name: {{ template "opennebula.sched.fullname" . }}
+        args: ["/usr/bin/mm_sched"]
         ports:
         - name: onedport
           containerPort: {{ .Values.onedeamon.port | default 2633 }}

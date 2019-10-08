@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ template "opennebula.oned.fullname" . }}
@@ -9,6 +9,10 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "opennebula.oned.fullname" . }}
+      release: {{ .Release.Name }}
   replicas: {{ .Values.onedeamon.replicaCount }}
   template:
     metadata:
@@ -20,7 +24,7 @@ spec:
       - command:
         - /bin/sh
         - -c
-        - ls {{- if .Values.mysql.enabled }} && 
+        - ls {{- if .Values.mysql.enabled }} &&
           until curl --max-time 5 http://{{ .Release.Name }}-mysql:3306; do echo waiting for {{ .Release.Name }}-mysql; sleep 5; done;
           {{- end }}
         image: "{{ .Values.onedeamon.image.repository }}:{{ .Values.onedeamon.image.tag }}"
@@ -29,9 +33,6 @@ spec:
         - mountPath: /var/log/one
           name: data
           subPath: log
-        # - mountPath: /var/tmp/mysqlPassword
-        #   name: sqlpass
-        #   subPath: mysql-password
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -42,6 +43,7 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.onedeamon.image.repository }}:{{ .Values.onedeamon.image.tag }}"
           imagePullPolicy: {{ .Values.onedeamon.image.pullPolicy }}
+          args: ["/usr/bin/ssh-agent", "/usr/bin/oned", "-f"]
           env:
             - name: NAMESPACE
               valueFrom:
@@ -86,15 +88,18 @@ spec:
           - mountPath: /etc/one/oned.conf
             name: oned-config
             subPath: oned.conf
-          # - mountPath: /var/lib/one/.one/
-          #   name: auth-data
-            # subPath: serveradmin
           - mountPath: /var/tmp
             name: data
             subPath: tmp
           - mountPath: /var/log/one
             name: data
             subPath: log
+        {{- if .Values.datastore.enabled }}
+          - mountPath: /var/lib/one/datastores/{{ .Values.datastore.id_images}}
+            name: datastore-images
+          - mountPath: /var/lib/one/datastores/{{ .Values.datastore.id_system}}
+            name: datastore-system
+        {{- end }}
       volumes:
       - name: oned-auth
         secret:
@@ -105,19 +110,24 @@ spec:
       - name: oned-config
         configMap:
           name: {{ template "opennebula.oned.fullname" . }}-deamonconfig
-      # - name: sqlpass
-      #   secret:
-      #     secretName: {{ template "opennebula.mysql.fullname" . }}
-      # - name: auth-data
-      #   emptyDir: {}
-        # secret:
-        #   secretName: {{ include "opennebula.fullname" . }}-serveradmin
       - name: data
-        emptyDir: {}  
+        emptyDir: {}
+        {{- if .Values.datastore.enabled }}
+      - name: datastore-images
+        persistentVolumeClaim:
+          claimName: {{ include "opennebula.fullname" . }}-datastore-images
+      - name: datastore-system
+        persistentVolumeClaim:
+          claimName: {{ include "opennebula.fullname" . }}-datastore-system
+        {{- end }}
       {{- with .Values.onedeamon.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{ toYaml .Values.imagePullSecrets}}
+    {{- end }}
     {{- with .Values.onedeamon.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}

@@ -5,5 +5,5 @@ name: opennebula
 version: 0.1.0
 description: OpenNebula is a turnkey open-source solution to build Private Clouds and manage Data Center virtualization.
 maintainer:
-  - name: zakkg3
+  - name: Nicolas Kowenski
     email: zakkg3@gmail.com
