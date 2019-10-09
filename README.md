@@ -1,5 +1,7 @@
 # Opennebula control plane Chart.
 
+# :warning: This is depreciated. the project url now is: https://github.com/ethz-hpc/k8s-OpenNebula
+
 ## Installing the Chart.
 
 To install the chart with the release name `my-release`:
