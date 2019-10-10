@@ -8,7 +8,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 # 3 = Debug. 2= Info
-debug_level: 3
+debug_level: 2
 
 
 # Note all autoamted secrets creations are not being tracked by helm. So if you delete this chart the secrets will still be there.
@@ -35,36 +35,46 @@ auto_serveradmin_secret:
   << : *auto
   enabled: true
 
+atastore:
+  enabled: true
+  id_images: 100
+  id_system: 101
+  storageClass: flexible
+  size: 10Gi
+
+
 # Opennebula one deamon.
 onedeamon:
   image:
-    repository: zakkg3/opennebula
-    tag: 5.8.2
+    repository: ethzhpc/opennebula
+    tag: 5.8.5
     pullPolicy: IfNotPresent
   port: 2633
   replicaCount: 1
   auth: # to mount in /var/lib/one/.one/one_auth
     username: oneadmin
-    password: "xxxxXXXX"
+    password: "XXXXX"
   service:
     type: ClusterIP
     port: 2633
   config:
     default_auth: default
+    #http://docs.opennebula.org/5.8/deployment/open_cloud_host_setup/kvm_driver.html#opennebula-configuration
+    parallel_kvm: false
 
 sunstone:
   image:
-    repository: zakkg3/opennebula-sunstone
-    tag: 5.8.2
+    repository: ethzhpc/opennebula-sunstone
+    tag: 5.8.5
     pullPolicy: IfNotPresent
   replicaCount: 1
   #http://docs.opennebula.org/5.8/deployment/sunstone_setup/sunstone.html#configuration
-  config: 
+  config:
     auth: opennebula
     #memcache for server that spawn more than one process
     sessions: "memcache"
     # Only used with Sessions: "memcached"
-    memcached: 
+    memcached:
       port: 11211
       image: "memcached"
       tag: "1.5.6-alpine"
@@ -74,14 +84,66 @@ sunstone:
     type: ClusterIP
     port: 9869
 
+scheduler:
+  config:
+    #  MAX_HOST: Maximum number of Virtual Machines dispatched to each host in
+    #            each scheduling action
+    # Use it with onedeamon.config.parallel_kcm=true
+    # comment this for default value = 1
+    max_hosts: 10
+    
+hosts:
+  # Enable to deploy deamonset to .
+  enable: true
+
+  image:
+    repository: ethzhpc/opennebula-node
+    tag: 5.8.5
+    pullPolicy: IfNotPresent
+
+# this is work in progress
+  config: |-
+    some
+    config
+    here
+
+  # annotate your nodes to join the oppennebula cluster,
+  # if Nil {} this will be deployed in all possible nodes.
+  nodeSelector:
+    opennebula-node: ""
+
+  affinity: {}
+
+  tolerations: []
+
+  # limits for nodes
+  # cpu: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#meaning-of-cpu
+  resources:
+    limits:
+      cpu: 1
+      memory: 4Gi
+
+flow:
+  enabled: false
+  image:
+    repository: ethzhpc/opennebula-flow
+    tag: 5.8.5
+    pullPolicy: IfNotPresent
+  #replicaCount: 1
+  port: 2474
+
+    
 mysql:
   enabled: true
   mysqlDatabase: "opennebula"
   mysqlUser: "onedeamon"
   mysqlPassword: ""
   persistence:
-    #storageClass: "local-zfs"
+    #storageClass: "nfs"
     size: 10Gi
+    # to keep this pvc on helm delete:
+    # annotations:
+    #   helm.sh/resource-policy: keep
     
 
 ingress:   # For Sunstone
@@ -94,8 +156,8 @@ ingress:   # For Sunstone
     # kubernetes.io/tls-acme: "true"
   hosts:
     - host: opennebula.domain
-      paths: []
-        #- "/"
+      paths: 
+        - "/"
 
   tls: []
   #  - secretName: chart-example-tls
