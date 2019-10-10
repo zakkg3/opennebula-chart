@@ -1,6 +1,7 @@
 # Opennebula control plane Chart.
 
 # :warning: This is depreciated. the project url now is: https://github.com/ethz-hpc/k8s-OpenNebula
+and is not only control plane, we are running everithing on pods! even the node's libvirt
 
 ## Installing the Chart.
 
